@@ -1,0 +1,16 @@
+{"step": 1, "epoch": 0, "loss": 0.693147, "logit_mean": 0.0, "lr": 2.857e-06, "elapsed_s": 5.5, "mem_alloc_gb": 3.778, "mem_reserved_gb": 4.582}
+{"step": 5, "epoch": 0, "loss": 0.158598, "logit_mean": 0.3522, "lr": 8.571e-06, "elapsed_s": 23.6, "mem_alloc_gb": 3.777, "mem_reserved_gb": 4.588}
+{"step": 10, "epoch": 0, "loss": 0.0, "logit_mean": 3.2413, "lr": 9.952e-06, "elapsed_s": 60.8, "mem_alloc_gb": 3.781, "mem_reserved_gb": 4.709}
+{"step": 15, "epoch": 0, "loss": 0.0, "logit_mean": 6.5474, "lr": 9.662e-06, "elapsed_s": 109.7, "mem_alloc_gb": 3.776, "mem_reserved_gb": 4.588}
+{"step": 20, "epoch": 0, "loss": 0.0, "logit_mean": 11.5161, "lr": 9.125e-06, "elapsed_s": 143.4, "mem_alloc_gb": 3.776, "mem_reserved_gb": 4.584}
+{"step": 25, "epoch": 0, "loss": 0.0, "logit_mean": 13.2503, "lr": 8.368e-06, "elapsed_s": 166.2, "mem_alloc_gb": 3.777, "mem_reserved_gb": 4.584}
+{"step": 30, "epoch": 1, "loss": 0.0, "logit_mean": 11.2203, "lr": 7.433e-06, "elapsed_s": 199.0, "mem_alloc_gb": 3.776, "mem_reserved_gb": 4.586}
+{"step": 35, "epoch": 1, "loss": 0.0, "logit_mean": 9.1668, "lr": 6.368e-06, "elapsed_s": 224.7, "mem_alloc_gb": 3.776, "mem_reserved_gb": 4.588}
+{"step": 40, "epoch": 1, "loss": 0.0, "logit_mean": 14.0322, "lr": 5.231e-06, "elapsed_s": 303.8, "mem_alloc_gb": 3.776, "mem_reserved_gb": 4.59}
+{"step": 45, "epoch": 1, "loss": 0.0, "logit_mean": 13.7516, "lr": 4.081e-06, "elapsed_s": 345.4, "mem_alloc_gb": 3.777, "mem_reserved_gb": 4.693}
+{"step": 50, "epoch": 1, "loss": 0.0, "logit_mean": 9.2927, "lr": 2.98e-06, "elapsed_s": 385.7, "mem_alloc_gb": 3.776, "mem_reserved_gb": 4.588}
+{"step": 55, "epoch": 2, "loss": 0.0, "logit_mean": 7.3354, "lr": 1.987e-06, "elapsed_s": 408.3, "mem_alloc_gb": 3.777, "mem_reserved_gb": 4.664}
+{"step": 60, "epoch": 2, "loss": 0.0, "logit_mean": 17.1946, "lr": 1.153e-06, "elapsed_s": 456.2, "mem_alloc_gb": 3.778, "mem_reserved_gb": 4.705}
+{"step": 65, "epoch": 2, "loss": 0.0, "logit_mean": 11.928, "lr": 5.24e-07, "elapsed_s": 485.9, "mem_alloc_gb": 3.778, "mem_reserved_gb": 4.629}
+{"step": 70, "epoch": 2, "loss": 0.0, "logit_mean": 13.4676, "lr": 1.33e-07, "elapsed_s": 523.7, "mem_alloc_gb": 3.778, "mem_reserved_gb": 4.633}
+{"step": 75, "epoch": 2, "loss": 0.0, "logit_mean": 8.3634, "lr": 0.0, "elapsed_s": 560.4, "mem_alloc_gb": 3.777, "mem_reserved_gb": 4.623}

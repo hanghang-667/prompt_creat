@@ -1,0 +1,26 @@
+# Python 3.10（本项目在 conda 环境 spin 下开发）
+#
+# 安装：pip install -r requirements.txt
+#
+# 注意：torch 需要与 CUDA 版本匹配。本项目使用 cu130 轮子以支持
+
+# --- 训练 ---
+torch==2.14.0
+transformers==5.17.0
+trl==1.14.0
+peft==0.21.0
+bitsandbytes==0.50.2
+accelerate==1.15.0
+datasets==5.0.1
+
+# --- 数据处理 ---
+pyarrow==25.0.1
+numpy==2.2.6
+
+# --- 服务与前端 ---
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
+pydantic==2.13.5
+
+# --- 训练监控 ---
+tensorboard==2.21.0

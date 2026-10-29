@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>简述 → 提示词生成器</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1e222b;
+    --border: #2a2f3a;
+    --text: #e6e8ee;
+    --muted: #8b93a7;
+    --accent: #5b8cff;
+    --accent-2: #22c1a4;
+    --danger: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  header {
+    padding: 18px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+  .badge {
+    font-size: 12px; padding: 3px 9px; border-radius: 999px;
+    background: var(--panel-2); color: var(--muted); border: 1px solid var(--border);
+  }
+  .badge.ok { color: var(--accent-2); border-color: #1d4a41; }
+  .badge.bad { color: var(--danger); border-color: #4a2222; }
+  main {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+    padding: 18px 24px 40px; max-width: 1500px; margin: 0 auto;
+  }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; display: flex; flex-direction: column;
+  }
+  .panel h2 {
+    font-size: 13px; margin: 0 0 10px; color: var(--muted);
+    font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  }
+  textarea {
+    width: 100%; min-height: 150px; resize: vertical;
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 9px;
+    padding: 12px; font: inherit; outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  button {
+    background: var(--accent); color: #fff; border: 0; border-radius: 9px;
+    padding: 10px 20px; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.1); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.ghost {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    font-weight: 500; padding: 8px 14px;
+  }
+  .out {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 9px;
+    padding: 14px; min-height: 260px; white-space: pre-wrap; word-break: break-word;
+    flex: 1; overflow-y: auto; max-height: 62vh;
+  }
+  .out.empty { color: var(--muted); font-style: italic; }
+  .meta { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 18px; }
+  .examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip {
+    font-size: 12.5px; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  input[type=number], input[type=text] {
+    width: 100%; background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
+    font: inherit; outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  .err { color: var(--danger); font-size: 13px; margin-top: 8px; }
+  .spinner {
+    display: inline-block; width: 13px; height: 13px; border: 2px solid #ffffff55;
+    border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite;
+    margin-right: 8px; vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>简述 → 提示词生成器</h1>
+  <span class="badge" id="status">连接中…</span>
+  <span class="badge" id="modelBadge"></span>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>输入简述</h2>
+    <textarea id="brief" placeholder="用一句大白话描述你想做什么，例如：&#10;Find a poem that best conveys the feeling of sadness."></textarea>
+
+    <div class="row">
+      <button id="go">生成提示词</button>
+      <button class="ghost" id="copy">复制结果</button>
+      <button class="ghost" id="clear">清空</button>
+    </div>
+
+    <div class="examples" id="examples"></div>
+
+    <details>
+      <summary>生成参数</summary>
+      <div class="grid2">
+        <div>
+          <label>最大生成长度 (tokens)</label>
+          <input type="number" id="maxNewTokens" value="512" min="16" max="2048" step="16" />
+        </div>
+        <div>
+          <label>temperature（0 = 贪心）</label>
+          <input type="number" id="temperature" value="0.7" min="0" max="2" step="0.1" />
+        </div>
+        <div>
+          <label>top_p</label>
+          <input type="number" id="topP" value="0.9" min="0.05" max="1" step="0.05" />
+        </div>
+        <div>
+          <label>repetition_penalty</label>
+          <input type="number" id="repPenalty" value="1.05" min="1" max="2" step="0.05" />
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label>system prompt（留空用训练时的默认值）</label>
+        <textarea id="system" style="min-height:80px" placeholder="留空即可"></textarea>
+      </div>
+    </details>
+  </section>
+
+  <section class="panel">
+    <h2>生成的提示词</h2>
+    <div class="out empty" id="out">结果会显示在这里。</div>
+    <div class="meta" id="meta"></div>
+    <div class="err" id="err"></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let busy = false;
+
+function setBusy(on) {
+  busy = on;
+  $("go").disabled = on;
+  $("go").innerHTML = on ? '<span class="spinner"></span>生成中…' : "生成提示词";
+}
+
+function setOut(text, empty) {
+  const el = $("out");
+  el.textContent = text;
+  el.classList.toggle("empty", !!empty);
+}
+
+async function checkHealth() {
+  try {
+    const r = await fetch("/api/health");
+    const d = await r.json();
+    const ok = d.status === "ok";
+    $("status").textContent = ok ? "模型就绪" : "加载中…";
+    $("status").className = "badge " + (ok ? "ok" : "");
+    if (d.adapter) {
+      $("modelBadge").textContent = "LoRA: " + d.adapter.split("/").slice(-2).join("/");
+    } else if (d.base_model) {
+      $("modelBadge").textContent = "基座模式（未加载微调权重）";
+    }
+    return ok;
+  } catch (e) {
+    $("status").textContent = "服务未连接";
+    $("status").className = "badge bad";
+    return false;
+  }
+}
+
+async function loadExamples() {
+  try {
+    const d = await (await fetch("/api/examples")).json();
+    $("examples").innerHTML = "";
+    d.examples.forEach((t) => {
+      const c = document.createElement("span");
+      c.className = "chip";
+      c.textContent = t.length > 42 ? t.slice(0, 42) + "…" : t;
+      c.title = t;
+      c.onclick = () => { $("brief").value = t; $("brief").focus(); };
+      $("examples").appendChild(c);
+    });
+  } catch (e) { /* 忽略 */ }
+}
+
+function payload() {
+  const sys = $("system").value.trim();
+  return {
+    brief: $("brief").value.trim(),
+    system: sys || null,
+    max_new_tokens: +$("maxNewTokens").value,
+    temperature: +$("temperature").value,
+    top_p: +$("topP").value,
+    repetition_penalty: +$("repPenalty").value,
+  };
+}
+
+async function generate() {
+  if (busy) return;
+  const body = payload();
+  $("err").textContent = "";
+  if (!body.brief) {
+    $("err").textContent = "请先输入简述。";
+    return;
+  }
+
+  setBusy(true);
+  setOut("", true);
+  $("meta").textContent = "";
+
+  const started = performance.now();
+  let text = "";
+  let chunks = 0;
+
+  try {
+    const resp = await fetch("/api/generate/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      const msg = await resp.text();
+      throw new Error("HTTP " + resp.status + " " + msg.slice(0, 200));
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop();
+
+      for (const part of parts) {
+        const line = part.trim();
+        if (!line.startsWith("data:")) continue;
+        const data = JSON.parse(line.slice(5).trim());
+        if (data.error) throw new Error(data.error);
+        if (data.delta) {
+          if (!text) setOut("", false);
+          text += data.delta;
+          chunks++;
+          $("out").textContent = text;
+          $("out").scrollTop = $("out").scrollHeight;
+        }
+        if (data.done) {
+          $("meta").textContent =
+            `耗时 ${((performance.now() - started) / 1000).toFixed(1)}s · ` +
+            `${chunks} 个片段 · ${text.length} 字符`;
+        }
+      }
+    }
+    if (!text) setOut("（模型没有输出内容，试试调高最大生成长度）", true);
+  } catch (e) {
+    $("err").textContent = "生成失败：" + e.message;
+    if (!text) setOut("生成失败。", true);
+  } finally {
+    setBusy(false);
+  }
+}
+
+$("go").onclick = generate;
+$("clear").onclick = () => {
+  $("brief").value = "";
+  setOut("结果会显示在这里。", true);
+  $("meta").textContent = "";
+  $("err").textContent = "";
+};
+$("copy").onclick = async () => {
+  const t = $("out").textContent;
+  if (!t || $("out").classList.contains("empty")) return;
+  try {
+    await navigator.clipboard.writeText(t);
+    $("meta").textContent = "已复制到剪贴板";
+  } catch (e) {
+    $("meta").textContent = "复制失败，请手动选择文本";
+  }
+};
+$("brief").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) generate();
+});
+
+(async () => {
+  await checkHealth();
+  await loadExamples();
+  setInterval(checkHealth, 5000);
+})();
+</script>
+</body>
+</html>

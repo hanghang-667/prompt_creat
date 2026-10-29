@@ -1,0 +1,33 @@
+# ---- 体积过大的依赖，不进版本库 ----
+# 原始数据集约 1.7GB，基座模型约 7.6GB，都放在项目上一级：
+#   ../datasets/   ../models/
+datasets/
+models/
+
+# 训练中间产物
+runs/*/checkpoint-*/
+runs/smoke/
+
+# LoRA 权重约 74MB。如果需要把训练结果一起提交，把下面一行注释掉。
+runs/sft/final/
+
+# 日志与可视化事件
+runs/*.log
+runs/*/runs/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---- 脚本产生的中间文件 ----
+data/samples.json
+*.safetensors
